@@ -3,13 +3,15 @@
   "client_side": true,
   "description": "A collection of reworks and optimisations to some internals of YomiHUSTLE to speed up the game and reduce stutters",
   "friendly_name": "Only Optimised Moves",
-  "id": "12345",
-  "link": "",
+  "id": "3000568863",
+  "link": "https://steamcommunity.com/sharedfiles/filedetails/?id=3000568863",
   "name": "OptimisedMoves",
   "overwrites": false,
-  "priority": -999999,
-  "requires": [
-    ""
+  "priority": -9223372036854775808,
+  "COMMENT_FOR_OTHER_DEVS": [
+    "OptimisedMoves is supposed to be a base that everything else loads on top of, as being second or any other position has inconsistent game-breaking behaviour.",
+    "Please contact me if the mod is causing conflicts with your mod @bloodwiing on YomiModding"
   ],
-  "version": "1.1.0"
+  "requires": [ "" ],
+  "version": "1.2.3"
 }

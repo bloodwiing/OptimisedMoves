@@ -1,0 +1,30 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://OptimisedMoves/options/generic/SubItem.gd" type="Script" id=1]
+[ext_resource path="res://OptimisedMoves/options/generic/guide.png" type="Texture" id=2]
+
+[node name="SubItem" type="HBoxContainer"]
+margin_right = 157.0
+margin_bottom = 12.0
+custom_constants/separation = 0
+script = ExtResource( 1 )
+
+[node name="HierarchyGuide" type="NinePatchRect" parent="."]
+unique_name_in_owner = true
+modulate = Color( 1, 1, 1, 0.117647 )
+margin_right = 10.0
+margin_bottom = 6.0
+rect_min_size = Vector2( 10, 0 )
+size_flags_horizontal = 0
+size_flags_vertical = 0
+texture = ExtResource( 2 )
+region_rect = Rect2( 1, 0, 10, 6 )
+patch_margin_left = 3
+patch_margin_top = 6
+
+[node name="Contents" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
+margin_left = 10.0
+margin_right = 157.0
+margin_bottom = 12.0
+size_flags_horizontal = 3

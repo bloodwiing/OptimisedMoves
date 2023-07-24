@@ -3,7 +3,7 @@
 
 :: You can set these variables up to your own flavour, they're for basically folder/file names
 SET OUTPUT=D:\SteamGames\steamapps\common\YourOnlyMoveIsHUSTLE\mods
-SET OUTPUT_PREFIX=.1.1.0
+SET OUTPUT_PREFIX=.1.2.3
 SET ZIPTEMP=%TEMP%\.modziptemp
 
 
@@ -21,11 +21,14 @@ MKDIR %ZIPTEMP%
 
 :: Copies all files to the temporary folder
 :: Supports also copying the .import folder separately for assets
-ROBOCOPY "%CD%" "%ZIPTEMP%\%MODNAME%" /MIR /XD .import /XF *.bat
+ROBOCOPY "%CD%" "%ZIPTEMP%\%MODNAME%" /MIR /XD .import .git .vs /XF *.bat
 ROBOCOPY "%CD%\.import" "%ZIPTEMP%\.import" /MIR 2> NUL
 
+SET ZIPPATH=%OUTPUT%\%MODNAME%%OUTPUT_PREFIX%.zip
+:: Delete the old ZIP file
+DEL "%ZIPPATH%"
 :: Compresses using 7-Zip (Make sure that 7z.exe is available from your PATH)
-7z a -tZip "%OUTPUT%\%MODNAME%%OUTPUT_PREFIX%.zip" "%ZIPTEMP%\*"
+7z a -tZip "%ZIPPATH%" "%ZIPTEMP%\*"
 
 :: Deletes that temporary folder
 RMDIR /S /Q %ZIPTEMP%

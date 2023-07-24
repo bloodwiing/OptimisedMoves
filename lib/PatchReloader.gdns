@@ -3,5 +3,6 @@
 [ext_resource path="res://OptimisedMoves/lib/OptiMoves.tres" type="GDNativeLibrary" id=1]
 
 [resource]
-class_name = "OptiMoves"
+resource_name = "PatchReloader"
+class_name = "PatchReloader"
 library = ExtResource( 1 )

@@ -2,5 +2,5 @@
 
 [resource]
 symbol_prefix = ""
-entry/Windows.64 = "res://OptimisedMoves/lib/optimoves.dll"
+entry/Windows.64 = "res://OptimisedMoves/lib/OptiMoves.dll"
 dependency/Windows.64 = [  ]
