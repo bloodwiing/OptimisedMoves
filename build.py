@@ -27,7 +27,7 @@ def copy_folder_to_zip(zip: ZipFile, parent: pathlib.Path, folder: pathlib.Path)
         if not file.is_file():
             continue
         
-        if re.search(IGNORE_FOLDERS, str(file.relative_to(parent))):
+        if re.search(IGNORE_FOLDERS, str(file.parent.relative_to(parent))):
             continue
         if re.match(IGNORE_FILES, file.name):
             continue
