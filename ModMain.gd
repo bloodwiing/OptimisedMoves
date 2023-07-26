@@ -21,36 +21,6 @@ var UILayer
 
 
 func _init(modLoader = ModLoader):
-#	for i in range(5):
-#		print("res://OptimisedMoves/lib/libOptiMoves.so")
-#		print(OS.get_executable_path().get_base_dir().plus_file("libOptiMoves.so"))
-#		var status = Directory.new().copy("res://OptimisedMoves/lib/libOptiMoves.so", OS.get_executable_path().get_base_dir().plus_file("libOptiMoves.so"))
-#		print("STATUS: %s" % status)
-#	print("res://OptimisedMoves/lib/libOptiMoves.so")
-#	print(OS.get_executable_path().get_base_dir().plus_file("libOptiMoves.so"))
-#	var ssstatus = Directory.new().copy("res://OptimisedMoves/lib/libOptiMoves.so", OS.get_executable_path().get_base_dir().plus_file("libOptiMoves.so"))
-#	print("SSSTATUS: %s" % ssstatus)
-#	print("res://OptimisedMoves/lib/libOptiMoves.so")
-#	print(OS.get_executable_path().get_base_dir().plus_file("libOptiMoves.so"))
-#	var sssstatus = Directory.new().copy("res://OptimisedMoves/lib/libOptiMoves.so", OS.get_executable_path().get_base_dir().plus_file("libOptiMoves.so"))
-#	print("SSSSTATUS: %s" % sssstatus)
-#	print("res://OptimisedMoves/lib/libOptiMoves.so")
-#	print(OS.get_executable_path().get_base_dir().plus_file("libOptiMoves.so"))
-#	var ssssstatus = Directory.new().copy("res://OptimisedMoves/lib/libOptiMoves.so", OS.get_executable_path().get_base_dir().plus_file("libOptiMoves.so"))
-#	print("SSSSSTATUS: %s" % ssssstatus)
-	
-	var info = get_lib_native_info("res://OptimisedMoves/lib/OptiMoves.tres")
-#		copy_status = Directory.new().callv("copy", info)
-#		if copy_status == OK:
-#			print("OptimisedMoves: Copied file %s to YOMI directory" % info[0])
-#		else:
-#			print("OptimisedMoves: Error while copying file %s to YOMI: %d" % [info[0], copy_status])
-	
-	print("res://OptimisedMoves/lib/libOptiMoves.so")
-	print(OS.get_executable_path().get_base_dir().plus_file("libOptiMoves.so"))
-	var sstatus = Directory.new().copy("res://OptimisedMoves/lib/libOptiMoves.so", OS.get_executable_path().get_base_dir().plus_file("libOptiMoves.so"))
-	print("SSTATUS: %s" % sstatus)
-	
 	change_boot_splash()
 	
 	modLoader.installScriptExtension("res://OptimisedMoves/extensions/Custom.gd")
@@ -69,11 +39,6 @@ func _init(modLoader = ModLoader):
 			version = mod[2]["version"]
 	
 	name = "OptimisedMoves"
-	
-#	_copy_lib("res://OptimisedMoves/lib/OptiMoves.tres")
-#	print("COPY STATUS: %s" % copy_status)
-#	if copy_status != OK:
-#		return
 
 func change_boot_splash():
 	var resource: StreamTexture = load("res://OptimisedMoves/splash.png")
@@ -113,6 +78,9 @@ func _late_init():
 	if not initialised_before:
 		initialised_before = true
 		
+		for gdnative in gdnatives:
+			copy_native_library(gdnative)
+		
 		if copy_status != OK:
 			print("OptimisedMoves: Optimisations are disabled due to previous failures")
 			var toast = load("res://OptimisedMoves/ui/UIToast.tscn").instance()
@@ -142,57 +110,57 @@ func _late_init():
 func run_patch_safe(patch_id:String, obj:Object, function:String, args:Array) -> bool:
 	return patchManager.run_patch_safe(patch_id, obj, function, args)
 
-
-# DLL Copying Functions from the DiscordRichPresence mod by @snazzah 
-
-func get_lib_native_info(lib_path: String):
-#	print("res://OptimisedMoves/lib/libOptiMoves.so")
-#	print(OS.get_executable_path().get_base_dir().plus_file("libOptiMoves.so"))
-#	var status = Directory.new().copy("res://OptimisedMoves/lib/libOptiMoves.so", OS.get_executable_path().get_base_dir().plus_file("libOptiMoves.so"))
-#	print("2ND STATUS: %s" % status)
-	
+func copy_native_library(lib_path: String):
+	var file := File.new()
+	var dir := Directory.new()
 	
 	var lib: GDNativeLibrary = load(lib_path)
 
 	var config := lib.config_file
 
 	var res_path: String = config.get_value("entry", "%s.64" % OS.get_name())
-	print(res_path)
 	var lib_name = res_path.get_file()
 	var sys_path = OS.get_executable_path().get_base_dir().plus_file(lib_name)
-	print(sys_path)
-#
-#	return [lib_name, [res_path, sys_path]]
-	
-#	var file = File.new()
-	
-#	if file.file_exists(sys_path):
-#		var their_hash = file.get_md5(sys_path)
-#		var our_hash = file.get_md5(res_path)
-#		if our_hash == their_hash:
-#			copy_status = OK
-#			return
-#		dir.remove(sys_path)
 
-	copy_status = Directory.new().copy(res_path, sys_path)
+	if file.file_exists(sys_path):
+		var their_hash = file.get_md5(sys_path)
+		var our_hash = file.get_md5(res_path)
+		if our_hash == their_hash:
+			copy_status = OK
+			return
+		dir.remove(sys_path)
+
+	copy_status = copy_file(res_path, sys_path)
 
 	if copy_status == OK:
 		print("OptimisedMoves: Copied file %s to YOMI directory" % lib_name)
 	else:
 		print("OptimisedMoves: Error while copying file %s to YOMI: %d" % [lib_name, copy_status])
 
-# For some users, dir.copy gives an ERR_FILE_EOF, and sometimes trying again fixes it
-# This is so fucking stupid though, why does that happen so much?
-#func _try_copy_file(from: String, to: String, try = 1):
-#	print(from)
-#	print(to)
-#	copy_status = Directory.new().copy(from, to)
-#	# If this fails 5 times, I have given up.
-#
-#	if copy_status == OK:
-#		return OK
-#	if try >= 0:
-#		return copy_status
-#
-#	if copy_status == ERR_FILE_EOF or copy_status == ERR_FILE_CORRUPT:
-#		return _try_copy_file(from, to, try + 1)
+func copy_file(from: String, to: String):
+	var source := File.new()
+	source.open(from, File.READ)
+	
+	var size = source.get_len()
+	
+	var dest := File.new()
+	dest.open(to, File.WRITE)
+
+	source.seek(0)
+
+	while size > 0:
+		var buffer_size = min(65536, size)
+
+		if source.get_error() and source.get_error() != ERR_FILE_EOF:
+			return source.get_error()
+		if dest.get_error():
+			return dest.get_error()
+
+		var data = source.get_buffer(buffer_size)
+		dest.store_buffer(data)
+
+		size -= data.size()
+
+	source.close()
+	dest.close()
+	return OK

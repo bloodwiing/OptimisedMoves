@@ -7,7 +7,7 @@ import platform
 import re
 
 
-IGNORE_FOLDERS = r'(?:(?:.git)|(?:.import)|(?:__pycache__))\/'
+IGNORE_FOLDERS = r'(?:(?:.git)|(?:.import)|(?:__pycache__))'
 IGNORE_FILES = r'^(?:(?:.+.zip)|(?:.+.bat)|(?:.+.pyc?))$'
 
 IMPORT_PATTERN = r'(?:.+.import)'
