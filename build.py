@@ -7,11 +7,16 @@ import platform
 import re
 
 
-IGNORE_FOLDERS = r'(?:(?:.git)|(?:.import)|(?:__pycache__))'
-IGNORE_FILES = r'^(?:(?:.+.zip)|(?:.+.bat)|(?:.+.pyc?))$'
+class IGNORE:
+    FOLDERS = r'(?:)'
+    FILES = r'^(?:)$'
 
-IMPORT_PATTERN = r'(?:.+.import)'
-IMPORT_PATH_PATTERN = r'path="res:\/\/\.import\/{0}-([0-9a-fA-F]+?)\.stex"'
+
+class IMPORT:
+    FOLDER = '.import'
+    FILE = r'(?:.+.import)'
+
+    PATH_PATTERN = r'path="res:\/\/\.import\/{0}-([0-9a-fA-F]+?)\.stex"'
 
 
 def write_file(zip: ZipFile, parent: pathlib.Path, file: pathlib.Path):
@@ -27,12 +32,13 @@ def copy_folder_to_zip(zip: ZipFile, parent: pathlib.Path, folder: pathlib.Path)
         if not file.is_file():
             continue
         
-        if re.search(IGNORE_FOLDERS, str(file.parent.relative_to(parent))):
+        folderpath = str(file.parent.relative_to(parent)).replace('\\', '/') + '/'
+        if re.search(IGNORE.FOLDERS, folderpath):
             continue
-        if re.match(IGNORE_FILES, file.name):
+        if re.match(IGNORE.FILES, file.name):
             continue
         
-        if re.match(IMPORT_PATTERN, file.name):
+        if re.match(IMPORT.FILE, file.name):
             copy_import_to_zip(zip, parent, file)
             continue
 
@@ -43,7 +49,7 @@ def copy_import_to_zip(zip: ZipFile, parent: pathlib.Path, imp: pathlib.Path):
     write_file(zip, parent, imp)
 
     asset = imp.name[:-len('.import')]
-    pattern = IMPORT_PATH_PATTERN.format(asset.replace('.', '\.'))
+    pattern = IMPORT.PATH_PATTERN.format(asset.replace('.', '\.'))
 
     with open(imp, 'r') as file:
         content = file.read()
@@ -70,6 +76,8 @@ mod_dir = os.getcwd()
 
 
 def zip_mod():
+    print('Zipping mod...')
+    
     os.chdir(mod_dir)
 
     path = pathlib.Path(f'{YOMIH_PATH}/mods/{MOD_NAME}{MOD_SUFFIX}.zip')
@@ -82,10 +90,12 @@ def zip_mod():
     folder = pathlib.Path('.').resolve()
     copy_folder_to_zip(zip, parent, folder)
 
-    print('Done zipping!')
+    print('Done zipping!\n')
 
 
 def run_game():
+    print('Running game...')
+
     os.chdir(YOMIH_PATH)
 
     print(os.getcwd())
@@ -96,11 +106,69 @@ def run_game():
         os.system('YourOnlyMoveIsHUSTLE.exe')
     else:
         raise NotImplementedError(f'Cannot run game for platform: {platform.system()}')
+    
+    print('')
+
+
+def populate_ignore():
+    print('Populating .buildignore...')
+
+    IGNORE.FOLDERS = r''
+    IGNORE.FILES = r''
+
+    folders = []
+    files = []
+
+    def recursive_scan(folder: pathlib.Path):
+        buildignore = folder.joinpath('.buildignore')
+        folderstr = str(folder).replace('\\', '/') + '/'
+        if folderstr == './':
+            folderstr = ''
+        
+        if not buildignore.exists():
+            return
+
+        print(f'Reading .buildignore at {buildignore}')
+        with open(buildignore, 'r') as file:
+            lines = file.readlines()
+            
+        for l in lines:
+            l = l.strip().replace('\\', '/')
+
+            if l.startswith('#') or len(l) == 0:
+                continue
+
+            if l.endswith('/'):
+                print(f'Folder excluded: {l}')
+                folders.append(folderstr + l.replace('*', '.+'))
+            
+            else:
+                print(f'File excluded: {l}')
+                files.append(l.replace('*', '.+'))
+            
+        for child in os.listdir(folder):
+            if os.path.isfile(child):
+                continue
+            recursive_scan(pathlib.Path(child))
+
+    recursive_scan(pathlib.Path())
+
+    folders.append(IMPORT.FOLDER)
+
+    IGNORE.FOLDERS = r'(?:' + r'|'.join((rf'(?:{x})' for x in folders)) + r')'
+    IGNORE.FILES = r'^(?:' + r'|'.join((rf'(?:{x})' for x in files)) + r')$'
+
+    print(f'Final Folder ignore: {IGNORE.FOLDERS}')
+    print(f'Final File ignore: {IGNORE.FILES}')
+
+    print('')
 
 
 if __name__ == '__main__':
     if 'YOMIH_PATH' not in os.environ:
         print('Please add YOMIH_PATH to ENV!')
+
+    populate_ignore()
 
     parser = argparse.ArgumentParser(
         prog='YomiHUSTLE Build Tools',

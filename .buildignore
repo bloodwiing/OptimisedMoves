@@ -1,0 +1,13 @@
+# Git
+.git/
+.gitignore
+
+# Python
+__pycache__/
+*.py
+*.pyc
+
+# Build
+.buildignore
+*.bat
+*.zip
