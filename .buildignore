@@ -11,3 +11,6 @@ __pycache__/
 .buildignore
 *.bat
 *.zip
+
+# Optimised Moves
+.local/
