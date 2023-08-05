@@ -90,7 +90,9 @@ def zip_mod():
     folder = pathlib.Path('.').resolve()
     copy_folder_to_zip(zip, parent, folder)
 
-    print('Done zipping!\n')
+    print('Done zipping!')
+    print(f'Mod exported to {path}')
+    print('')
 
 
 def run_game():
